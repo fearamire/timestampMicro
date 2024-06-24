@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 dotenv.config();
-const moment = require('moment-timezone');
 
 const cors = require('cors');
 app.use(cors({optionsSuccessStatus: 200})); //legacy browser support
@@ -14,7 +13,7 @@ const returnTimeJSON = (time) => {
     if (isNaN(date.getTime())) {
         return {error: 'Invalid Date'};
     } else {
-        const utcTime = moment(date).tz('America/Chicago').format('ddd, DD MMM YYYY HH:mm:ss z');
+        const utcTime = date.toUTCString();
         return {unix:date.getTime(), utc:utcTime};
     };
 };
@@ -37,12 +36,11 @@ app.get("/api/:time", (req, res) => {
 //time unspecified? Here's now.
 app.get("/api/", (req, res) => {
     const unixTime = Date.now();
-    const utcTime = moment().tz('America/Chicago').format('ddd, DD MMM YYYY HH:mm:ss z');
+    const utcTime = new Date(unixTime).toUTCString();
 
     res.json({unix: unixTime, utc: utcTime});
 });
 
 app.listen(process.env.PORT, () => {
     console.log(`Timestamp app listening on port ${process.env.PORT}`);
-    // console.log(moment().tz('America/Chicago').format('ddd, DD MMM YYYY HH:mm:ss z'));
 });
